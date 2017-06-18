@@ -1,0 +1,47 @@
+{
+  "name": "dynamocache",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dst/index.js",
+  "typings": "./dst/index.d.ts",
+  "scripts": {
+    "clean": "rm -Rf dst",
+    "prebuild": "npm run clean",
+    "build": "tsc -d",
+    "prepublish": "npm run build",
+    "pretest": "npm run build",
+    "ci:publish": "publish",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "test": "mocha dst/**/__test__/**/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/breath103/dynamocache.git"
+  },
+  "author": "Kurt Lee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/breath103/dynamocache/issues"
+  },
+  "homepage": "https://github.com/breath103/dynamocache#readme",
+  "dependencies": {
+    "@types/aws-sdk": "^2.7.0",
+    "@types/lodash": "4.14.65",
+    "@types/node": "7.0.27",
+    "@types/underscore.string": "0.0.30",
+    "aws-sdk": "^2.72.0",
+    "lodash": "4.17.4",
+    "typescript": "2.3.4",
+    "underscore.string": "3.3.4"
+  },
+  "devDependencies": {
+    "@types/chai": "4.0.0",
+    "@types/chai-as-promised": "0.0.31",
+    "@types/mocha": "2.2.41",
+    "chai": "4.0.1",
+    "chai-as-promised": "6.0.0",
+    "mocha": "3.4.2",
+    "publish": "0.6.0",
+    "tslint": "^5.4.3"
+  }
+}
