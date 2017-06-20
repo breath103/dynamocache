@@ -1,5 +1,5 @@
-<!--[![Travis Build Status](https://travis-ci.org/breath103/dynamocache.svg?branch=master)](https://travis-ci.org/breath103/dynamocache)
-[![npm version](https://badge.fury.io/js/dynamocache.svg)](https://badge.fury.io/js/dynamocache)-->
+[![Travis Build Status](https://travis-ci.org/breath103/dynamocache.svg?branch=master)](https://travis-ci.org/breath103/dynamocache)
+[![npm version](https://badge.fury.io/js/dynamocache.svg)](https://badge.fury.io/js/dynamocache)
 
 # DynamoCache
 DynamoDB as a key-value cache just like memcached, but much better, fully-managed, auto scalliable, totally reliable.
