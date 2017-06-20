@@ -1,6 +1,6 @@
 {
   "name": "dynamocache",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "./dst/index.js",
   "typings": "./dst/index.d.ts",
@@ -22,6 +22,9 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/breath103/dynamocache/issues"
+  },
+  "bin": {
+    "dynamo-cache": "dst/bin/cli.js"
   },
   "homepage": "https://github.com/breath103/dynamocache#readme",
   "dependencies": {
