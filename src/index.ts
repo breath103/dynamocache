@@ -1,1 +1,1 @@
-export * from './dynamo-cache';
+export * from "./dynamo-cache";

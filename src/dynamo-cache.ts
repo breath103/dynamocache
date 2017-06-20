@@ -1,9 +1,10 @@
 import * as AWS from "aws-sdk";
 
 export class DynamoCache {
-  readonly namespace: string;
-  readonly timeToLiveAttributeName: string;
-  readonly dynamoDBClient: AWS.DynamoDB;
+  public readonly namespace: string;
+  public readonly timeToLiveAttributeName: string;
+  public readonly dynamoDBClient: AWS.DynamoDB;
+
   constructor(options: {
     namespace: string,
     timeToLiveAttributeName?: string,
@@ -17,8 +18,8 @@ export class DynamoCache {
   get tableName() {
     return `${this.namespace}_cache`;
   }
-  async createTable() {
-    console.log(`Creating table <${this.tableName}> ...`);
+  public async createTable() {
+    console.log(`Creating table <${this.tableName}> ...`); // tslint:disable-line
     const table = await new Promise<AWS.DynamoDB.CreateTableOutput>((resolve, reject) => {
       this.dynamoDBClient.createTable({
         AttributeDefinitions: [
@@ -46,9 +47,9 @@ export class DynamoCache {
         }
       });
     });
-    console.log(`Table <${this.tableName}> Created.`);
+    console.log(`Table <${this.tableName}> Created.`); // tslint:disable-line
 
-    console.log(`Update Table <${this.tableName}> for TTL <${this.timeToLiveAttributeName}>`);
+    console.log(`Update Table <${this.tableName}> for TTL <${this.timeToLiveAttributeName}>`); // tslint:disable-line
     await new Promise((resolve, reject) => {
       this.dynamoDBClient.updateTimeToLive({
         TableName: this.tableName,
@@ -65,7 +66,8 @@ export class DynamoCache {
       });
     });
   }
-  async deleteTable() {
+
+  public async deleteTable() {
     await new Promise<AWS.DynamoDB.CreateTableOutput>((resolve, reject) => {
       this.dynamoDBClient.deleteTable(
         { TableName: this.tableName },
@@ -75,24 +77,24 @@ export class DynamoCache {
           } else {
             resolve(data);
           }
-        })
+        });
     });
   }
 
-  // Access
-  accessor<T>(type: SerializableClass<T>) {
-    return new DynamoCacheSerializableAccessor(this, type);
-  }
+  // // Access
+  // public accessor<T>(type: SerializableClass<T>) {
+  //   return new DynamoCacheSerializableAccessor(this, type);
+  // }
 
-  async get<T>(key: string): Promise<T | undefined> {
+  public async get<T>(key: string): Promise<T | undefined> {
     const res = await new Promise<AWS.DynamoDB.GetItemOutput>((resolve, reject) => {
       this.dynamoDBClient.getItem({
         TableName: this.tableName,
         Key: {
           key: {
             S: key,
-          }
-        }
+          },
+        },
       }, (err: AWS.AWSError, data: AWS.DynamoDB.GetItemOutput) => {
         if (err) {
           reject(err);
@@ -101,14 +103,14 @@ export class DynamoCache {
         }
       });
     });
-    if (res.Item && res.Item["value"] && res.Item["value"]["S"]) {
-      return JSON.parse(res.Item["value"]["S"]!) as T;
+    if (res.Item && res.Item.value && res.Item.value.S) {
+      return JSON.parse(res.Item.value.S!) as T;
     } else {
       return undefined;
     }
   }
 
-  async set<T>(key: string, options: CacheSetOption, data: T): Promise<void> {
+  public async set<T>(key: string, options: CacheSetOption, data: T): Promise<void> {
     await new Promise<void>((resolve, reject) => {
       const item: AWS.DynamoDB.PutItemInputAttributeMap = {
         key: {
@@ -116,16 +118,16 @@ export class DynamoCache {
         },
         value: {
           S: JSON.stringify(data),
-        }
+        },
       };
       item[this.timeToLiveAttributeName] = {
         N: (new Date().getTime() + options.expiresIn).toString(),
-      }
+      };
 
       this.dynamoDBClient.putItem({
         TableName: this.tableName,
-        Item: item
-      }, (err: AWS.AWSError, data: AWS.DynamoDB.GetItemOutput) => {
+        Item: item,
+      }, (err: AWS.AWSError, res: AWS.DynamoDB.GetItemOutput) => {
         if (err) {
           reject(err);
         } else {
@@ -135,7 +137,7 @@ export class DynamoCache {
     });
   }
 
-  async fetch<T>(key: string, options: CacheSetOption, fetcher: () => Promise<T>): Promise<T> {
+  public async fetch<T>(key: string, options: CacheSetOption, fetcher: () => Promise<T>): Promise<T> {
     let value: T | undefined = await this.get<T>(key);
     if (!value) {
       value = await fetcher();
@@ -156,24 +158,24 @@ export interface SerializableClass<Type> {
   toJSON(): object;
 }
 
-export class DynamoCacheSerializableAccessor<T> {
-  constructor(private cache: DynamoCache, private type: SerializableClass<T>) {
-  }
+// export class DynamoCacheSerializableAccessor<T> {
+//   constructor(private cache: DynamoCache, private type: SerializableClass<T>) {
+//   }
 
-  async get(key: string): Promise<T | undefined> {
-    const json = this.cache.get<string>(key);
-    if (json) {
-      return this.type.fromJSON(json);
-    } else {
-      return undefined;
-    }
-  }
+//   async get(key: string): Promise<T | undefined> {
+//     const json = this.cache.get<string>(key);
+//     if (json) {
+//       return this.type.fromJSON(json);
+//     } else {
+//       return undefined;
+//     }
+//   }
 
-  async set(key: string, options: CacheSetOption, data: T): Promise<void> {
-    return this.cache.set(key, options, data);
-  }
+//   async set(key: string, options: CacheSetOption, data: T): Promise<void> {
+//     return this.cache.set(key, options, data);
+//   }
 
-  async fetch(key: string, options: CacheSetOption, fetcher: () => Promise<T>): Promise<T> {
-    return this.cache.fetch(key, options, fetcher);
-  }
-}
+//   async fetch(key: string, options: CacheSetOption, fetcher: () => Promise<T>): Promise<T> {
+//     return this.cache.fetch(key, options, fetcher);
+//   }
+// }
